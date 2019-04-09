@@ -70,7 +70,7 @@
       mode: "embed",
       protocol: "https",
       width: "auto",
-      lang: args["lang"],
+      lang: args["lang"] || "zh-CN",
       onReady: function onReady() {
         document.getElementsByClassName("yidun_feedback")[0].style.visibility="hidden";
         postMessageBridge("onReady", null);
