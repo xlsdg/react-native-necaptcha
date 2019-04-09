@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no,minimal-ui"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="renderer" content="webkit" />
+
+  <meta http-equiv="x-dns-prefetch-control" content="on" />
+
+  <meta name="format-detection" content="telephone=no,email=no" />
+  <meta name="google" value="notranslate" />
+
+  <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+
+  <title>NeCaptcha</title>
+
+  <style>
+    *, ::after, ::before {
+      -webkit-box-sizing: border-box;
+              box-sizing: border-box;
+    }
+    body, html {
+      min-width: 100vw;
+      min-height: 100vh;
+      padding: 0;
+      margin: 0;
+    }
+    .captcha {
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+  <div id="captcha" class="captcha"></div>
+  <script src="https://cstaticdun.126.net/load.min.js"></script>
+  <script>
+    function postMessageBridge(type, data) {
+      return window.ReactNativeWebView && window.ReactNativeWebView.postMessage && window.ReactNativeWebView.postMessage(JSON.stringify({
+        "type": type,
+        "data": data
+      }));
+    };
+
+    var args = (function getArgs() {
+      var args = {};
+      var url = location.href;
+      if (url.indexOf("?") === -1) {
+        return args;
+      }
+
+      var items = url.split("?")[1].split("&");
+      for (var i = 0, l = items.length; i < l; i++) {
+        var splits = items[i].split("=");
+        args[splits[0]] = splits[1];
+      }
+      return args;
+    })();
+
+    var options = {
+      captchaId: args["captchaId"],
+      element: "#captcha",
+      mode: "embed",
+      protocol: "https",
+      width: "auto",
+      lang: args["lang"],
+      onReady: function onReady() {
+        document.getElementsByClassName("yidun_feedback")[0].style.visibility="hidden";
+        postMessageBridge("onReady", null);
+      },
+      onVerify: function onVerify(error, result) {
+        postMessageBridge("onVerify", {
+          "error": error,
+          "result": result
+        });
+      },
+      onClose: function onClose() {
+        postMessageBridge("onClose", null);
+      },
+      enableClose: false,
+    };
+
+    window.initNECaptcha(options, function onLoad(instance) {
+      window.captchaIns = instance;
+      postMessageBridge("onLoad", null);
+    }, function onError(error) {
+      postMessageBridge("onError", error);
+    });
+  </script>
+</body>
+</html>
